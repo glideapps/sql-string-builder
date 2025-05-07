@@ -1,12 +1,22 @@
-import { UnsafeQueryLiteral, sql, joinSQL, commaJoinSQL, commaJoinStringsToSQL } from "./query-string";
+import { describe, expect, test } from "vitest";
+import {
+    UnsafeQueryLiteral,
+    sql,
+    joinSQL,
+    commaJoinSQL,
+    commaJoinStringsToSQL,
+} from "./query-string";
 
 test("sql template with simple values", () => {
     const str = "foo";
     const num = 42;
     const bln = false;
-    const [queryText, values] = sql`insert into MyTable(col1, col2) values (${str}, ${num}, ${bln})`.build();
+    const [queryText, values] =
+        sql`insert into MyTable(col1, col2) values (${str}, ${num}, ${bln})`.build();
 
-    expect(queryText).toEqual("insert into MyTable(col1, col2) values ($1, $2, $3)");
+    expect(queryText).toEqual(
+        "insert into MyTable(col1, col2) values ($1, $2, $3)"
+    );
     expect(values).toEqual([str, num, bln]);
 });
 
@@ -17,7 +27,9 @@ test("appending sql templates", () => {
     query.append(sql` and bong = ${99}`);
 
     const [queryText, values] = query.build();
-    expect(queryText).toEqual("select * from MyTable where foo = $1 and baz = $2 and bong = $3");
+    expect(queryText).toEqual(
+        "select * from MyTable where foo = $1 and baz = $2 and bong = $3"
+    );
     expect(values).toEqual(["bar", true, 99]);
 });
 
@@ -27,11 +39,17 @@ test("appending literal strings", () => {
     const value = "floof";
 
     const query = sql`select data from GoodStuff`;
-    query.append(sql` order by `.appendRawString(`${coercion}(data->'${columnName}') asc`));
+    query.append(
+        sql` order by `.appendRawString(
+            `${coercion}(data->'${columnName}') asc`
+        )
+    );
     query.append(sql` where foo = ${value}`);
 
     const [queryText, values] = query.build();
-    expect(queryText).toEqual("select data from GoodStuff order by as_number(data->'foof') asc where foo = $1");
+    expect(queryText).toEqual(
+        "select data from GoodStuff order by as_number(data->'foof') asc where foo = $1"
+    );
     expect(values).toEqual([value]);
 });
 
@@ -60,7 +78,9 @@ test("interpolating UnsafeQueryLiteral", () => {
     const query = sql`select ${columnName} from ${tableName} where answer = ${constant}`;
 
     const [queryText, values] = query.build();
-    expect(queryText).toEqual("select my_column from my_table where answer = $1");
+    expect(queryText).toEqual(
+        "select my_column from my_table where answer = $1"
+    );
     expect(values).toEqual([constant]);
 });
 
@@ -77,11 +97,15 @@ describe("build() is idempotent", () => {
     });
 
     test("two", () => {
-        const builder = sql`SELECT ${new UnsafeQueryLiteral("bla")} FROM ${new UnsafeQueryLiteral("table")}`;
+        const builder = sql`SELECT ${new UnsafeQueryLiteral(
+            "bla"
+        )} FROM ${new UnsafeQueryLiteral("table")}`;
         builder.append(sql` ORDER BY row_id LIMIT ${123}`);
 
         const [queryText1, values1] = builder.build();
-        expect(queryText1).toEqual("SELECT bla FROM table ORDER BY row_id LIMIT $1");
+        expect(queryText1).toEqual(
+            "SELECT bla FROM table ORDER BY row_id LIMIT $1"
+        );
         expect(values1).toEqual([123]);
 
         const [queryText2, values2] = builder.build();
@@ -95,18 +119,29 @@ describe("join", () => {
     const more = [sql`a`, sql`${"b"}`, sql`c`];
 
     describe("joinSQL", () => {
-        test("one", () => expect(joinSQL(one, "|").build()).toEqual(["$1", [123]]));
-        test("more", () => expect(joinSQL(more, "|").build()).toEqual(["a|$1|c", ["b"]]));
+        test("one", () =>
+            expect(joinSQL(one, "|").build()).toEqual(["$1", [123]]));
+        test("more", () =>
+            expect(joinSQL(more, "|").build()).toEqual(["a|$1|c", ["b"]]));
     });
 
     describe("commaJoinSQL", () => {
-        test("one", () => expect(commaJoinSQL(one).build()).toEqual(["$1", [123]]));
-        test("more", () => expect(commaJoinSQL(more).build()).toEqual(["a, $1, c", ["b"]]));
+        test("one", () =>
+            expect(commaJoinSQL(one).build()).toEqual(["$1", [123]]));
+        test("more", () =>
+            expect(commaJoinSQL(more).build()).toEqual(["a, $1, c", ["b"]]));
     });
 
     describe("commaJoinStringsToSQL", () => {
-        test("one", () => expect(commaJoinStringsToSQL(["a"]).build()).toEqual(["$1", ["a"]]));
+        test("one", () =>
+            expect(commaJoinStringsToSQL(["a"]).build()).toEqual([
+                "$1",
+                ["a"],
+            ]));
         test("more", () =>
-            expect(commaJoinStringsToSQL(["a", "b", "c"]).build()).toEqual(["$1, $2, $3", ["a", "b", "c"]]));
+            expect(commaJoinStringsToSQL(["a", "b", "c"]).build()).toEqual([
+                "$1, $2, $3",
+                ["a", "b", "c"],
+            ]));
     });
 });
