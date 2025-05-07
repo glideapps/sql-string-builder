@@ -1,4 +1,7 @@
-# sql-query-builder
+# sql-string-builder
+
+[![CI](https://github.com/glideapps/sql-string-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/glideapps/sql-string-builder/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/sql-string-builder.svg)](https://www.npmjs.com/package/sql-string-builder)
 
 This package provides utilities for building SQL query strings in a safe, composable, and parameterized manner. It is designed to prevent SQL injection vulnerabilities and enhance code readability when constructing complex queries.
 
@@ -7,7 +10,7 @@ Primary author: [Alex Corrado](https://github.com/chkn)
 ## Installation
 
 ```bash
-npm install sql-query-builder
+npm install sql-string-builder
 ```
 
 ## Core Concepts
@@ -22,7 +25,7 @@ Additionally, the package offers `UnsafeQueryLiteral` for situations where direc
 ## `sql` Tagged Template Literal
 
 ```typescript
-import { sql } from "sql-query-builder";
+import { sql } from "sql-string-builder";
 ```
 
 The `sql` tagged template literal is the most convenient and recommended way to create `QueryStringBuilder` instances. It allows you to write SQL queries in a template literal syntax, embedding JavaScript/TypeScript expressions as parameterized values.
@@ -40,7 +43,7 @@ const query = sql`SQL query text with ${parameter1} and ${parameter2}`;
 **Example:**
 
 ```typescript
-import { sql } from "sql-query-builder";
+import { sql } from "sql-string-builder";
 
 const productName = "Awesome Gadget";
 const price = 99.99;
@@ -60,7 +63,7 @@ console.log(values); // Output: [ 'Awesome Gadget', 99.99 ]
 ## `UnsafeQueryLiteral`
 
 ```typescript
-import { UnsafeQueryLiteral } from "sql-query-builder";
+import { UnsafeQueryLiteral } from "sql-string-builder";
 ```
 
 `UnsafeQueryLiteral` is a special type that wraps a string. When a `QueryStringBuilder` encounters an `UnsafeQueryLiteral`, it **directly interpolates** the string value into the SQL query without parameterization or escaping.
@@ -77,7 +80,7 @@ import { UnsafeQueryLiteral } from "sql-query-builder";
 **Example (Use with Caution - for illustration only):**
 
 ```typescript
-import { sql, UnsafeQueryLiteral } from "sql-query-builder";
+import { sql, UnsafeQueryLiteral } from "sql-string-builder";
 
 const tableName = new UnsafeQueryLiteral("users_table"); // Static, known table name
 const columnName = new UnsafeQueryLiteral("username"); // Static, known column name
@@ -94,7 +97,7 @@ console.log(values); // Output: [ 123 ]
 ## `QueryStringBuilder`
 
 ```typescript
-import { QueryStringBuilder, sql } from "sql-query-builder";
+import { QueryStringBuilder, sql } from "sql-string-builder";
 ```
 
 `QueryStringBuilder` is the primary class in this package for constructing SQL queries. It provides a fluent interface for appending SQL fragments and parameterized values.
@@ -132,7 +135,7 @@ Appends another `QueryStringBuilder` to the current builder. This is the core me
 **Example:**
 
 ```typescript
-import { sql } from "sql-query-builder";
+import { sql } from "sql-string-builder";
 
 const selectClause = sql`SELECT * FROM users`;
 const whereClause = sql`WHERE age > ${18}`;
@@ -163,7 +166,7 @@ Similar to `UnsafeQueryLiteral`, `appendRawString` bypasses parameterization and
 **Example (Use with Caution - for illustration only):**
 
 ```typescript
-import { sql } from "sql-query-builder";
+import { sql } from "sql-string-builder";
 
 const orderByClause = sql`ORDER BY created_at`;
 const direction = "DESC"; // Static, known direction
@@ -186,7 +189,7 @@ Creates a new, mutable `QueryStringBuilder` that is a copy of the current builde
 **Example:**
 
 ```typescript
-import { sql } from "sql-query-builder";
+import { sql } from "sql-string-builder";
 
 const baseQuery = sql`SELECT * FROM products`;
 const query1 = baseQuery.clone().append(sql` WHERE price < ${100}`);
@@ -221,7 +224,7 @@ Finalizes the `QueryStringBuilder` and generates the SQL query string and an arr
 **Example:**
 
 ```typescript
-import { sql } from "sql-query-builder";
+import { sql } from "sql-string-builder";
 
 const name = "John Doe";
 const age = 30;
@@ -246,7 +249,7 @@ Returns an approximate length of the SQL query string being built. This can be u
 **Example:**
 
 ```typescript
-import { sql } from "sql-query-builder";
+import { sql } from "sql-string-builder";
 
 const longQuery = sql``;
 for (let i = 0; i < 100; i++) {
@@ -258,7 +261,7 @@ console.log(longQuery.approximateLength()); // Output: A number representing the
 
 ## Helper Functions
 
-The `sql-query-builder` package provides several helper functions to simplify common SQL construction tasks.
+The `sql-string-builder` package provides several helper functions to simplify common SQL construction tasks.
 
 ### `joinSQL(items: readonly QueryStringBuilder[], separator: string): QueryStringBuilder`
 
@@ -276,7 +279,7 @@ Joins an array of `QueryStringBuilder` instances into a single `QueryStringBuild
 **Example:**
 
 ```typescript
-import { sql, joinSQL } from "sql-query-builder";
+import { sql, joinSQL } from "sql-string-builder";
 
 const conditions = [
     sql`age > ${18}`,
@@ -308,7 +311,7 @@ A convenience function that joins an array of `QueryStringBuilder` instances usi
 **Example:**
 
 ```typescript
-import { sql, commaJoinSQL } from "sql-query-builder";
+import { sql, commaJoinSQL } from "sql-string-builder";
 
 const columns = [sql`name`, sql`email`, sql`created_at`];
 
@@ -336,7 +339,7 @@ A helper function that takes an array of strings and converts them into a comma-
 **Example:**
 
 ```typescript
-import { sql, commaJoinStringsToSQL } from "sql-query-builder";
+import { sql, commaJoinStringsToSQL } from "sql-string-builder";
 
 const userEmails = [
     "user1@example.com",
@@ -360,7 +363,7 @@ console.log(values); // Output: [ 'user1@example.com', 'user2@example.com', 'use
 -   **SQL Injection Prevention:** This package is designed to help prevent SQL injection vulnerabilities by promoting the use of parameterized queries. Always use parameterized values (using `${expression}` within the `sql` template literal) for any data that originates from user input or untrusted sources.
 -   **`UnsafeQueryLiteral` and `appendRawString`:** These features should be used with extreme caution and only when absolutely necessary for static, trusted parts of the SQL query. Improper use can reintroduce SQL injection risks. Thoroughly review and understand the security implications before using them.
 
-By using the `sql-query-builder` package correctly, you can build robust, readable, and secure SQL queries in your applications.
+By using the `sql-string-builder` package correctly, you can build robust, readable, and secure SQL queries in your applications.
 
 ## License
 

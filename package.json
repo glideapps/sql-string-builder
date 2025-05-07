@@ -1,5 +1,5 @@
 {
-    "name": "sql-query-builder",
+    "name": "sql-string-builder",
     "version": "0.0.1",
     "description": "Builds SQL query strings and parameters from an interpolated string",
     "main": "dist/index.js",
@@ -26,7 +26,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/glideapps/sql-query-builder.git"
+        "url": "git+https://github.com/glideapps/sql-string-builder.git"
     },
     "dependencies": {
         "@glideapps/ts-necessities": "^2.4.0"
