@@ -45,6 +45,6 @@ jobs:
                   node --input-type=module -e "import * as mod from './dist/index.mjs'; console.log(typeof mod.sql === 'function')" # Test ESM
 
             - name: Publish to NPM
-              run: npm publish
+              run: npm publish --access public
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
